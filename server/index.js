@@ -18,27 +18,48 @@ const con = mysql.createConnection({
 });
 
 // 各データ取得
+// ユーザー一覧
 app.get("/api/get/users", (req, res) => {
   const sql = "SELECT * FROM users";
   con.query(sql, function (err, result, fields) {
-    res.send(result);
+    if (err) {
+      return res.json("Error");
+    }
+    return res.json(result);
   });
 });
-
+// タイトル一覧
 app.get("/api/get/titles", (req, res) => {
-  const sql = "SELECT * FROM titles";
-  con.query(sql, function (err, result, fields) {
-    res.send(result);
+  // 投稿日時順 DESC: 降順、ASC: 昇順（デフォルト）
+  const desc = "SELECT * FROM titles ORDER BY post_time DESC";
+  con.query(desc, function (err, result, fields) {
+    if (err) {
+      return res.json("Error");
+    }
+    return res.json(result);
   });
 });
-
+// 全コメント
 app.get("/api/get/comments", (req, res) => {
   const sql = "SELECT * FROM comments";
   con.query(sql, function (err, result, fields) {
-    res.send(result);
+    if (err) {
+      return res.json("Error");
+    }
+    return res.json(result);
   });
 });
-
+// 指定タイトルIDのコメント
+// app.post("/api/get/comments/:title_id", (req, res) => {
+//   const sql = `SELECT * FROM comments WHERE title_id = ${req.params.title_id}`;
+//   con.query(sql, function (err, result) {
+//     console.log(result);
+//     if (err) {
+//       return res.json("Error");
+//     }
+//     return res.json(result);
+//   });
+// });
 app.get("/api/get/likes", (req, res) => {
   const sql = "SELECT * FROM likes";
   con.query(sql, function (err, result, fields) {
@@ -79,9 +100,9 @@ app.post("/login", (req, res) => {
 // コメント投稿
 app.post("/postComment/comments", (req, res) => {
   const sql =
-    "INSERT INTO comments( id, title, name, email, message, post_time, time ) VALUES (0, ?, ?, ?, ?, ?, ?)";
+    "INSERT INTO comments( id, title_id, name, email, message, post_time, time ) VALUES (0, ?, ?, ?, ?, ?, ?)";
   const values = [
-    req.body.title,
+    req.body.title_id,
     req.body.name,
     req.body.email,
     req.body.message,
@@ -110,8 +131,14 @@ app.post("/postComment/titles/:id", (req, res) => {
 
 // 新規タイトル
 app.post("/postTitle/comments", (req, res) => {
-  const sql = `INSERT INTO comments (id, title, name, email, message, post_time ) VALUES (0, ?, ?, ?, ?, ?)`;
-  const values = [req.body.title, req.body.name, req.body.email, req.body.message, req.body.post_time];
+  const sql = `INSERT INTO comments (id, title_id, name, email, message, post_time ) VALUES (0, ?, ?, ?, ?, ?)`;
+  const values = [
+    req.body.title_id,
+    req.body.name,
+    req.body.email,
+    req.body.message,
+    req.body.post_time,
+  ];
   con.query(sql, values, function (err, result) {
     if (err) {
       return res.json("Error");
@@ -127,7 +154,7 @@ app.post("/postTitle/titles", (req, res) => {
   const sql = `INSERT INTO titles (id, title, count, post_time ) VALUES (0, ?, 0, ?)`;
   const values = [req.body.title, req.body.post_time];
   con.query(sql, values, function (err, result) {
-    console.log(result)
+    console.log(result);
     if (err) {
       return res.json("Error");
     }
