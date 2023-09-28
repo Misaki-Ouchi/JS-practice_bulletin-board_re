@@ -30,7 +30,7 @@ app.get("/api/get/users", (req, res) => {
 });
 // タイトル一覧
 app.get("/api/get/titles", (req, res) => {
-  // 投稿日時順 DESC: 降順、ASC: 昇順（デフォルト）
+  // 投稿日時新しい順 DESC: 降順、ASC: 昇順（デフォルト）
   const desc = "SELECT * FROM titles ORDER BY post_time DESC";
   con.query(desc, function (err, result, fields) {
     if (err) {
